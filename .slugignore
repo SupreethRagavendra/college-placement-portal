@@ -1,0 +1,194 @@
+# .slugignore - For Heroku/Cloud Foundry deployments
+
+# Python RAG Service (exclude from Laravel deployment - deploy separately)
+python-rag/
+python-rag-groq-backup/
+
+# ChromaDB storage (large binary files - several GB)
+chromadb_storage/
+*.bin
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Documentation files (large PDFs and Word docs)
+docs/
+*.pdf
+*.docx
+*.doc
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# PHP
+vendor/
+.phpunit.result.cache
+.php_cs.cache
+
+# Storage (will be created at runtime)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+storage/app/public/
+storage/app/private/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.phpactor.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+tests/
+phpunit.xml
+.phpunit.cache
+
+# Python (for mixed projects)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+*.egg-info/
+*.pyc
+
+# Backup files
+*.backup
+*.bak
+*-backup/
+
+# Build artifacts
+public/hot
+public/storage
+public/build/hot
+
+# Deployment scripts and configs
+deploy-to-render.sh
+render-build.sh
+render-diagnose.sh
+setup-render-env.sh
+deploy.sh
+deploy-to-render.sh
+docker-compose.yml
+render.yaml
+
+# Windows batch files
+*.bat
+
+# Large configuration and analysis files
+*.txt
+email-test-output.txt
+verification-result.txt
+env-timeout-fix.txt
+RENDER_FINAL_FIX.txt
+
+# Documentation files (exclude all except README)
+*.md
+!README.md
+
+# Docker configuration (not needed for Heroku)
+Dockerfile
+.dockerignore
+docker/
+supervisor/
+
+# Supabase functions (separate deployment)
+supabase/
+
+# Various documentation files
+ADMIN_FIXES_COMPLETE.md
+CHANGES_SUMMARY.md
+CHATBOT_*.md
+CLOSURE_ERROR_FIX.md
+DEPLOYMENT_*.md
+DESIGN_QUICK_REFERENCE.md
+DOCKER_*.md
+EMAIL_*.md
+ENVIRONMENT_SETUP.md
+FINAL_*.md
+FIX_419_ERROR.md
+FIX_APPLIED.md
+FIXES_APPLIED.md
+FREE_HOSTING_COMPARISON.md
+HOW_TO_START_RAG_SERVICE.md
+IMPLEMENTATION_SUMMARY.md
+KIT_DESIGN_*.md
+MODEL_CONFIGURATION.md
+MODEL_NAMES_HIDDEN.md
+ORACLE_*.md
+PERFORMANCE_OPTIMIZATION_SUMMARY.md
+PRODUCTION_README.md
+QUICK_*.md
+RAG_*.md
+RENDER_*.md
+REVERTED_TO_OLD_DESIGN.md
+SESSION_FIX_SUMMARY.md
+SLOW_INTERNET_FIX.md
+SPEED_*.md
+SUPABASE_FIXES_COMPLETE.md
+TROUBLESHOOTING_DOCKER.md
+VIEW_NEW_DESIGN.md
+
+# Database files and other large files
+*.phpunit.result.cache
+phpunit.xml
+phpunit.local.xml
+
+# Cache and temporary files
+storage/framework/cache/data/
+*.cache
+.cache/
+
+# Cloud deployment specific
+clear-cache.bat
+clear-session-fix.bat
+fix-db-timeout.bat
+fix-db-timeout.php
+validate-production.php
+production-cleanup.sh
+optimize-production.bat
+optimize-production.sh
+oracle-setup.sh
+update-supabase-settings.sh
+deploy-email-function.sh
+
+# Analysis and debugging output
+test_deletion.html
+
+# PHP configuration overrides
+php.ini
+php.ini.production
+
+# Additional excludes for size reduction
+__pycache__
+.pytest_cache
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+

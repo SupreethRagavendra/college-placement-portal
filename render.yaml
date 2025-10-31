@@ -1,0 +1,158 @@
+services:
+  # Main Laravel Application
+  - type: web
+    name: college-placement-portal
+    runtime: docker
+    plan: free
+    region: oregon
+    healthCheckPath: /
+    envVars:
+      # Application
+      - key: APP_NAME
+        value: College Placement Portal
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        value: https://college-placement-portals.onrender.com
+      - key: APP_KEY
+        sync: false
+      
+      # Logging
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: debug
+      - key: LOG_DEPRECATIONS_CHANNEL
+        value: null
+      - key: LOG_STACK
+        value: single
+      
+      # Database (Supabase PostgreSQL) - Using direct connection for better reliability
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: db.wkqbukidxmzbgwauncrl.supabase.co
+      - key: DB_PORT
+        value: 6543
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.wkqbukidxmzbgwauncrl
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+      
+      # Cache & Session - Using database driver for consistency with local
+      - key: CACHE_DRIVER
+        value: file
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: 120
+      - key: SESSION_ENCRYPT
+        value: false
+      - key: SESSION_SECURE_COOKIE
+        value: true
+      - key: SESSION_HTTP_ONLY
+        value: true
+      - key: SESSION_SAME_SITE
+        value: lax
+      - key: SESSION_DOMAIN
+        value: .onrender.com
+      - key: QUEUE_CONNECTION
+        value: sync
+      
+      # CSRF Protection
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: college-placement-portals.onrender.com
+      
+      # Security
+      - key: TRUSTED_PROXIES
+        value: "*"
+      
+      # PHP Configuration
+      - key: PHP_MEMORY_LIMIT
+        value: 256M
+      - key: PHP_MAX_EXECUTION_TIME
+        value: 60
+      
+      # RAG Service Connection
+      - key: RAG_SERVICE_URL
+        fromService:
+          type: web
+          name: rag-service
+          property: host
+      - key: RAG_SERVICE_TIMEOUT
+        value: 30
+      - key: RAG_ENABLED
+        value: true
+      
+      # Groq API (for RAG)
+      - key: GROQ_API_KEY
+        sync: false
+        # Set this in Render dashboard
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_TEMPERATURE
+        value: 0.7
+      - key: GROQ_MAX_TOKENS
+        value: 1024
+
+  # Python FastAPI RAG Service
+  - type: web
+    name: placement-rag-service
+    runtime: python
+    plan: free
+    region: oregon
+    buildCommand: cd python-rag && pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: cd python-rag && uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # Service Configuration
+      - key: PORT
+        value: 8001
+      - key: DEBUG
+        value: false
+      
+      # Database Connection (for knowledge sync) - Using pooler connection
+      - key: SUPABASE_DB_HOST
+        value: db.wkqbukidxmzbgwauncrl.supabase.co
+      - key: SUPABASE_DB_PORT
+        value: 6543
+      - key: SUPABASE_DB_NAME
+        value: postgres
+      - key: SUPABASE_DB_USER
+        value: postgres.wkqbukidxmzbgwauncrl
+      - key: SUPABASE_DB_PASSWORD
+        sync: false
+      
+      # OpenRouter API
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_PRIMARY_MODEL
+        value: meta-llama/llama-3.1-70b-instruct
+      - key: OPENROUTER_FALLBACK_MODEL
+        value: meta-llama/llama-3.1-8b-instruct
+      - key: OPENROUTER_API_URL
+        value: https://openrouter.ai/api/v1/chat/completions
+      - key: OPENROUTER_TEMPERATURE
+        value: 0.7
+      - key: OPENROUTER_MAX_TOKENS
+        value: 1024
+      
+      # Groq API (Fallback)
+      - key: GROQ_API_KEY
+        sync: false
+      
+      # Laravel App URL for CORS
+      - key: LARAVEL_APP_URL
+        value: https://college-placement-portal.onrender.com
+      
+      # ChromaDB Configuration
+      - key: CHROMA_PERSIST_DIR
+        value: ./chromadb_storage
+      - key: CHROMA_COLLECTION_NAME
+        value: placement_knowledge

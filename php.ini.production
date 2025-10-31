@@ -1,0 +1,125 @@
+; ================================================================
+; PHP PRODUCTION CONFIGURATION FOR MAXIMUM PERFORMANCE
+; ================================================================
+; Copy relevant settings to your production php.ini
+; Location: /etc/php/8.2/fpm/php.ini (Linux) or php.ini (Windows)
+; ================================================================
+
+[PHP]
+; Basic Settings
+output_buffering = 4096
+zlib.output_compression = On
+implicit_flush = Off
+serialize_precision = -1
+
+; Error Handling (Production)
+display_errors = Off
+display_startup_errors = Off
+log_errors = On
+error_log = /var/log/php/error.log
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+
+; Resource Limits
+max_execution_time = 60
+max_input_time = 60
+memory_limit = 256M
+post_max_size = 20M
+upload_max_filesize = 20M
+
+; ================================================================
+; OPCACHE CONFIGURATION (CRITICAL FOR PERFORMANCE)
+; ================================================================
+[opcache]
+; Enable OPcache
+opcache.enable = 1
+opcache.enable_cli = 0
+
+; Memory Configuration
+opcache.memory_consumption = 256
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 20000
+
+; Performance Settings
+opcache.validate_timestamps = 0  ; Disable in production for max performance
+opcache.revalidate_freq = 0
+opcache.fast_shutdown = 1
+
+; Optimization
+opcache.save_comments = 1
+opcache.enable_file_override = 1
+opcache.optimization_level = 0x7FFEBFFF
+
+; JIT (PHP 8.0+)
+opcache.jit = tracing
+opcache.jit_buffer_size = 128M
+
+; ================================================================
+; REALPATH CACHE (Performance Boost)
+; ================================================================
+realpath_cache_size = 4M
+realpath_cache_ttl = 600
+
+; ================================================================
+; SESSION CONFIGURATION
+; ================================================================
+[Session]
+session.save_handler = files
+session.save_path = "/tmp"
+session.use_strict_mode = 1
+session.cookie_httponly = 1
+session.cookie_secure = 1
+session.cookie_samesite = "Lax"
+session.use_only_cookies = 1
+session.gc_maxlifetime = 7200
+session.gc_probability = 1
+session.gc_divisor = 1000
+
+; ================================================================
+; SECURITY SETTINGS
+; ================================================================
+expose_php = Off
+allow_url_fopen = On
+allow_url_include = Off
+disable_functions = exec,passthru,shell_exec,system,proc_open,popen
+enable_dl = Off
+
+; ================================================================
+; DATE/TIME
+; ================================================================
+[Date]
+date.timezone = UTC
+
+; ================================================================
+; RECOMMENDED APACHE/NGINX SETTINGS
+; ================================================================
+; For Apache (in httpd.conf or .htaccess):
+;   - Enable mod_deflate for GZIP compression
+;   - Enable mod_expires for browser caching
+;   - Enable mod_headers for cache headers
+;   - Enable HTTP/2
+;
+; For Nginx (in nginx.conf):
+;   - gzip on;
+;   - gzip_vary on;
+;   - gzip_types text/plain text/css application/json application/javascript;
+;   - enable http2;
+
+; ================================================================
+; PERFORMANCE MONITORING
+; ================================================================
+; Enable these for monitoring (optional)
+; zend_extension=xdebug.so  ; Only for debugging, NEVER in production
+; xhprof.output_dir=/tmp/xhprof
+
+; ================================================================
+; NOTES
+; ================================================================
+; After changing php.ini:
+;   - Restart PHP-FPM: sudo systemctl restart php8.2-fpm
+;   - Restart Apache: sudo systemctl restart apache2
+;   - Restart Nginx: sudo systemctl restart nginx
+;
+; Verify settings:
+;   php -i | grep opcache
+;   php -i | grep realpath
+

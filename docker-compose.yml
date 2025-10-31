@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db.wkqbukidxmzbgwauncrl.supabase.co
+      - DB_PORT=5432
+      - DB_DATABASE=postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=Supreeeth24#
+      - DB_SSLMODE=require
+    volumes:
+      - .:/var/www/html
+    command: >
+      sh -c "php artisan key:generate &&
+             php artisan config:clear &&
+             php artisan migrate:fresh --force &&
+             php artisan db:seed --class=AdminSeeder --force &&
+             php artisan serve --host=0.0.0.0 --port=8000"

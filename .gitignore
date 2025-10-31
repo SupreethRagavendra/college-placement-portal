@@ -1,0 +1,97 @@
+*.log
+.DS_Store
+.env
+.env.backup
+.env.production
+.env.local
+.env.staging
+.phpactor.json
+.phpunit.result.cache
+/.fleet
+/.idea
+/.nova
+/.phpunit.cache
+/.vscode
+/.zed
+/auth.json
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/app/*
+!/storage/app/.gitkeep
+/storage/framework/cache/*
+!/storage/framework/cache/.gitkeep
+!/storage/framework/cache/data
+/storage/framework/cache/data/*
+!/storage/framework/cache/data/.gitkeep
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitkeep
+/storage/framework/views/*
+!/storage/framework/views/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
+npm-debug.log
+yarn-error.log
+
+# Archive directory (documentation cleanup)
+/archive/
+
+# Backup files
+*.backup
+*_backup.*
+.env.backup*
+
+# Test files
+test-*.php
+test_*.php
+check-*.php
+debug-*.php
+
+# Temporary files
+*cookies.txt
+*.tmp
+*.temp
+
+# Large binary files and ChromaDB storage
+chromadb_storage/
+*.bin
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+
+# Python RAG backup (large files)
+python-rag-groq-backup/
+
+# Large documentation files
+docs/*.pdf
+docs/*.docx
+docs/*.doc
+
+# Windows batch files (not needed in repo)
+*.bat
+
+# Large analysis output files
+email-test-output.txt
+verification-result.txt
+env-timeout-fix.txt
+RENDER_FINAL_FIX.txt
+
+# Python cache (if present in root)
+__pycache__/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Additional storage that shouldn't be committed
+storage/app/private/
+storage/app/public/*
+!storage/app/public/.gitkeep
