@@ -15,7 +15,7 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://college-placement-portals.onrender.com
+        value: https://college-placement-portal.onrender.com
       - key: APP_KEY
         sync: false
       
@@ -67,7 +67,7 @@ services:
       
       # CSRF Protection
       - key: SANCTUM_STATEFUL_DOMAINS
-        value: college-placement-portals.onrender.com
+        value: college-placement-portal.onrender.com
       
       # Security
       - key: TRUSTED_PROXIES
@@ -83,7 +83,7 @@ services:
       - key: RAG_SERVICE_URL
         fromService:
           type: web
-          name: rag-service
+          name: placement-rag-service
           property: host
       - key: RAG_SERVICE_TIMEOUT
         value: 30
