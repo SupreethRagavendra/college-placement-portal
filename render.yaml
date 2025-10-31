@@ -23,7 +23,7 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
-        value: debug
+        value: info
       - key: LOG_DEPRECATIONS_CHANNEL
         value: null
       - key: LOG_STACK
