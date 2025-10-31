@@ -60,44 +60,29 @@ echo "📍 DB_PORT: $DB_PORT"
 echo "📍 DB_USERNAME: $DB_USERNAME"
 echo "📍 DB_SSLMODE: $DB_SSLMODE"
 
-# Test database connection with better error handling
+# Test database connection (quick check only)
 echo "⏳ Testing database connection..."
-MAX_RETRIES=10
-RETRY_COUNT=0
-DB_CONNECTED=false
-
-while [ $RETRY_COUNT -lt $MAX_RETRIES ] && [ "$DB_CONNECTED" = "false" ]; do
-    RETRY_COUNT=$((RETRY_COUNT + 1))
-    echo "Connection attempt $RETRY_COUNT/$MAX_RETRIES..."
-    
-    # Try to connect using pg_isready first (if available)
-    if command -v pg_isready &> /dev/null; then
-        if pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USERNAME" -t 5 2>/dev/null; then
-            DB_CONNECTED=true
-            echo "✅ PostgreSQL server is ready"
-        fi
-    fi
-    
-    # Fallback to PHP connection test
-    if [ "$DB_CONNECTED" = "false" ]; then
-        if php -r "try { \$pdo = new PDO('pgsql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_DATABASE};sslmode=${DB_SSLMODE}', '${DB_USERNAME}', '${DB_PASSWORD}'); echo 'connected'; } catch (Exception \$e) { exit(1); }" 2>/dev/null | grep -q "connected"; then
-            DB_CONNECTED=true
-            echo "✅ Database connection established via PHP"
-        fi
-    fi
-    
-    if [ "$DB_CONNECTED" = "false" ]; then
-        echo "⏳ Waiting 5 seconds before retry..."
-        sleep 5
-    fi
-done
-
-if [ "$DB_CONNECTED" = "false" ]; then
-    echo "⚠️  Could not establish database connection after $MAX_RETRIES attempts"
-    echo "⚠️  Proceeding with application startup anyway..."
-    echo "⚠️  Database operations may fail until connection is restored"
+if php -r "
+try {
+    \$pdo = new PDO(
+        'pgsql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_DATABASE};sslmode=${DB_SSLMODE}',
+        '${DB_USERNAME}',
+        '${DB_PASSWORD}',
+        [PDO::ATTR_TIMEOUT => 5, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+    echo 'connected';
+    exit(0);
+} catch (Exception \$e) {
+    echo 'Error: ' . \$e->getMessage();
+    exit(1);
+}
+" 2>&1 | grep -q "connected"; then
+    echo "✅ Database connection established"
+    DB_CONNECTED=true
 else
-    echo "✅ Database connection verified"
+    echo "⚠️  Could not connect to database, but continuing..."
+    echo "⚠️  Laravel will handle database connections"
+    DB_CONNECTED=false
 fi
 
 # Generate APP_KEY if not set
@@ -121,15 +106,12 @@ echo "🔐 Setting storage permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Run database migrations only if connected
-if [ "$DB_CONNECTED" = "true" ]; then
-    echo "🗄️  Running database migrations..."
-    php artisan migrate --force --no-interaction || {
-        echo "⚠️  Migration failed - will retry on next deployment"
-    }
-else
-    echo "⚠️  Skipping migrations - database not available"
-fi
+# Run database migrations
+echo "🗄️  Running database migrations..."
+php artisan migrate --force --no-interaction || {
+    echo "⚠️  Migration failed - database may not be available yet"
+    echo "⚠️  Application will continue, but some features may not work"
+}
 
 # Cache only routes and views, NOT config (to allow runtime env vars for sessions)
 echo "⚡ Caching routes and views..."
