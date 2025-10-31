@@ -3,6 +3,51 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
+# Create .env file from environment variables
+echo "📝 Creating .env file from environment variables..."
+cat > /var/www/html/.env << EOF
+APP_NAME="${APP_NAME:-Laravel}"
+APP_ENV="${APP_ENV:-production}"
+APP_KEY="${APP_KEY}"
+APP_DEBUG="${APP_DEBUG:-false}"
+APP_URL="${APP_URL:-http://localhost}"
+
+LOG_CHANNEL="${LOG_CHANNEL:-stack}"
+LOG_LEVEL="${LOG_LEVEL:-info}"
+
+DB_CONNECTION="${DB_CONNECTION:-pgsql}"
+DB_HOST="${DB_HOST}"
+DB_PORT="${DB_PORT:-5432}"
+DB_DATABASE="${DB_DATABASE}"
+DB_USERNAME="${DB_USERNAME}"
+DB_PASSWORD="${DB_PASSWORD}"
+DB_SSLMODE="${DB_SSLMODE:-require}"
+
+BROADCAST_DRIVER=log
+CACHE_DRIVER="${CACHE_DRIVER:-file}"
+FILESYSTEM_DISK=local
+QUEUE_CONNECTION="${QUEUE_CONNECTION:-sync}"
+SESSION_DRIVER="${SESSION_DRIVER:-cookie}"
+SESSION_LIFETIME="${SESSION_LIFETIME:-120}"
+
+MEMCACHED_HOST=127.0.0.1
+
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+
+MAIL_MAILER=smtp
+MAIL_HOST=mailpit
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_ADDRESS="hello@example.com"
+MAIL_FROM_NAME="\${APP_NAME}"
+EOF
+
+echo "✅ .env file created"
+
 # Use environment variables for database connection
 echo "📝 Using database connection from environment"
 echo "📍 DB_HOST: $DB_HOST"
