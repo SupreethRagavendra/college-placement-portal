@@ -27,12 +27,14 @@ class VectorStore:
     def __init__(self, persist_directory="./chroma_db"):
         """
         Initialize ChromaDB vector store with sentence transformer embeddings
+        Falls back gracefully if dependencies are not available
         """
-        if not CHROMADB_AVAILABLE:
-            raise ImportError("ChromaDB is not installed. Install it with: pip install chromadb")
-        
-        if not SENTENCE_TRANSFORMERS_AVAILABLE:
-            raise ImportError("Sentence transformers is not installed. Install it with: pip install sentence-transformers")
+        if not CHROMADB_AVAILABLE or not SENTENCE_TRANSFORMERS_AVAILABLE:
+            logger.warning("Vector store dependencies not available. Vector search will be disabled.")
+            self.client = None
+            self.embedding_model = None
+            self.collection = None
+            return
         
         try:
             self.client = chromadb.Client(Settings(
@@ -54,7 +56,10 @@ class VectorStore:
             
         except Exception as e:
             logger.error(f"Failed to initialize vector store: {e}")
-            raise
+            logger.warning("Vector store will operate in degraded mode (no vector search)")
+            self.client = None
+            self.embedding_model = None
+            self.collection = None
     
     def add_documents(self, documents: List[str], metadatas: List[Dict[str, Any]], ids: List[str]):
         """
@@ -65,6 +70,10 @@ class VectorStore:
             metadatas: List of metadata dicts for each document
             ids: List of unique IDs for each document
         """
+        if not self.collection or not self.embedding_model:
+            logger.warning("Vector store not available. Skipping document addition.")
+            return
+        
         try:
             if not documents:
                 logger.warning("No documents to add")
@@ -85,7 +94,7 @@ class VectorStore:
             
         except Exception as e:
             logger.error(f"Failed to add documents: {e}")
-            raise
+            logger.warning("Continuing without vector store")
     
     def search(self, query: str, n_results: int = 3) -> Dict[str, Any]:
         """
@@ -98,6 +107,10 @@ class VectorStore:
         Returns:
             Dictionary with 'documents', 'metadatas', 'distances', and 'ids'
         """
+        if not self.collection or not self.embedding_model:
+            logger.debug("Vector store not available. Returning empty results.")
+            return {'documents': [[]], 'metadatas': [[]], 'distances': [[]], 'ids': [[]]}
+        
         try:
             logger.info(f"Searching for: '{query}' (top {n_results} results)")
             
