@@ -140,6 +140,13 @@ try {
 " || echo "⚠️  Session test encountered an error"
 
 echo "✅ Laravel application ready!"
+
+# Update Nginx to use Render's PORT (defaults to 8000 if not set)
+PORT=${PORT:-8000}
+echo "🌐 Configuring Nginx to listen on port $PORT..."
+sed -i "s/listen 8000;/listen $PORT;/g" /etc/nginx/http.d/default.conf
+sed -i "s/listen \[::\]:8000;/listen [::]:$PORT;/g" /etc/nginx/http.d/default.conf
+
 echo "🌐 Starting Nginx and PHP-FPM..."
 
 # Start supervisor (which manages nginx and php-fpm)

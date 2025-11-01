@@ -15,9 +15,9 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_URL
-        value: https://college-placement-portal.onrender.com
+        sync: false  # Will be set automatically by Render
       - key: APP_KEY
-        sync: false
+        value: base64:BkMKrOJeUKQ39EuvLFgmKUU5KqQMLfFK/gjxEFrWemQ=
       
       # Logging
       - key: LOG_CHANNEL
@@ -35,19 +35,21 @@ services:
       - key: DB_HOST
         value: db.wkqbukidxmzbgwauncrl.supabase.co
       - key: DB_PORT
-        value: 6543
+        value: 5432
       - key: DB_DATABASE
         value: postgres
       - key: DB_USERNAME
-        value: postgres.wkqbukidxmzbgwauncrl
+        value: postgres
       - key: DB_PASSWORD
-        sync: false
+        value: Supreeeth24#
       - key: DB_SSLMODE
-        value: require
+        value: prefer
       
       # Cache & Session - Using database driver for consistency with local
+      - key: CACHE_STORE
+        value: database
       - key: CACHE_DRIVER
-        value: file
+        value: database
       - key: SESSION_DRIVER
         value: database
       - key: SESSION_LIFETIME
@@ -60,14 +62,12 @@ services:
         value: true
       - key: SESSION_SAME_SITE
         value: lax
-      - key: SESSION_DOMAIN
-        value: .onrender.com
       - key: QUEUE_CONNECTION
         value: sync
       
       # CSRF Protection
       - key: SANCTUM_STATEFUL_DOMAINS
-        value: college-placement-portal.onrender.com
+        sync: false  # Will be set manually after deployment
       
       # Security
       - key: TRUSTED_PROXIES
@@ -79,6 +79,24 @@ services:
       - key: PHP_MAX_EXECUTION_TIME
         value: 60
       
+      # Email Configuration
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        value: aromaticrootq@gmail.com
+      - key: MAIL_PASSWORD
+        value: efmffwbmyrvrtdej
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        value: aromaticrootq@gmail.com
+      - key: MAIL_FROM_NAME
+        value: College Placement Portal
+      
       # RAG Service Connection
       - key: RAG_SERVICE_URL
         fromService:
@@ -89,11 +107,26 @@ services:
         value: 30
       - key: RAG_ENABLED
         value: true
+      - key: RAG_AUTO_SYNC
+        value: true
+      - key: RAG_CACHE_ENABLED
+        value: true
+      - key: RAG_CACHE_TTL
+        value: 300
       
-      # Groq API (for RAG)
+      # OpenRouter API (for RAG)
+      - key: OPENROUTER_API_KEY
+        value: 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
+      - key: OPENROUTER_API_URL
+        value: https://openrouter.ai/api/v1/chat/completions
+      - key: OPENROUTER_PRIMARY_MODEL
+        value: qwen/qwen-2.5-72b-instruct:free
+      - key: OPENROUTER_FALLBACK_MODEL
+        value: deepseek/deepseek-v3.1:free
+      
+      # Groq API (for RAG fallback)
       - key: GROQ_API_KEY
-        sync: false
-        # Set this in Render dashboard
+        value: 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
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
       - key: GROQ_TEMPERATURE
@@ -108,34 +141,34 @@ services:
     plan: free
     region: oregon
     buildCommand: cd python-rag && pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: cd python-rag && uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: cd python-rag && python main.py
     healthCheckPath: /health
     envVars:
-      # Service Configuration
-      - key: PORT
-        value: 8001
+      # Service Configuration (PORT is automatically set by Render)
       - key: DEBUG
         value: false
+      - key: HOST
+        value: 0.0.0.0
       
-      # Database Connection (for knowledge sync) - Using pooler connection
+      # Database Connection (for knowledge sync) - Using direct connection
       - key: SUPABASE_DB_HOST
         value: db.wkqbukidxmzbgwauncrl.supabase.co
       - key: SUPABASE_DB_PORT
-        value: 6543
+        value: 5432
       - key: SUPABASE_DB_NAME
         value: postgres
       - key: SUPABASE_DB_USER
-        value: postgres.wkqbukidxmzbgwauncrl
+        value: postgres
       - key: SUPABASE_DB_PASSWORD
-        sync: false
+        value: Supreeeth24#
       
       # OpenRouter API
       - key: OPENROUTER_API_KEY
-        sync: false
+        value: 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
       - key: OPENROUTER_PRIMARY_MODEL
-        value: meta-llama/llama-3.1-70b-instruct
+        value: qwen/qwen-2.5-72b-instruct:free
       - key: OPENROUTER_FALLBACK_MODEL
-        value: meta-llama/llama-3.1-8b-instruct
+        value: deepseek/deepseek-v3.1:free
       - key: OPENROUTER_API_URL
         value: https://openrouter.ai/api/v1/chat/completions
       - key: OPENROUTER_TEMPERATURE
@@ -145,11 +178,17 @@ services:
       
       # Groq API (Fallback)
       - key: GROQ_API_KEY
-        sync: false
+        value: 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
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: GROQ_TEMPERATURE
+        value: 0.7
+      - key: GROQ_MAX_TOKENS
+        value: 1024
       
-      # Laravel App URL for CORS
+      # Laravel App URL for CORS (will be updated after deployment)
       - key: LARAVEL_APP_URL
-        value: https://college-placement-portal.onrender.com
+        sync: false  # Will be set based on actual Laravel service URL
       
       # ChromaDB Configuration
       - key: CHROMA_PERSIST_DIR

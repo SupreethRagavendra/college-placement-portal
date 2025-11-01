@@ -377,7 +377,8 @@ async def general_exception_handler(request, exc):
 if __name__ == "__main__":
     import uvicorn
     
-    port = int(os.getenv('SERVICE_PORT', 8001))
+    # Render uses PORT, local uses SERVICE_PORT
+    port = int(os.getenv('PORT', os.getenv('SERVICE_PORT', 8001)))
     host = os.getenv('HOST', '0.0.0.0')
     
     logger.info(f"Starting server on {host}:{port}")
