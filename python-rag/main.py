@@ -18,7 +18,11 @@ from openrouter_client import OpenRouterClient
 from context_handler import ContextHandler
 from response_formatter import ResponseFormatter
 from knowledge_sync import KnowledgeSync
-from vector_store import VectorStore
+# VectorStore import is conditional - may not be available if chromadb is not installed
+try:
+    from vector_store import VectorStore
+except ImportError:
+    VectorStore = None
 from response_cache import ResponseCache
 
 # Load environment variables
@@ -69,13 +73,16 @@ try:
     
     # Initialize vector store for RAG (optional - will work without it)
     vector_store = None
-    try:
-        vector_store = VectorStore()
-        logger.info("Vector store initialized successfully")
-    except (ImportError, Exception) as ve:
-        logger.warning(f"Vector store initialization failed: {ve}")
-        logger.warning("RAG will operate without vector search - this is OK for deployment")
-        vector_store = None
+    if VectorStore is not None:
+        try:
+            vector_store = VectorStore()
+            logger.info("Vector store initialized successfully")
+        except (ImportError, Exception) as ve:
+            logger.warning(f"Vector store initialization failed: {ve}")
+            logger.warning("RAG will operate without vector search - this is OK for deployment")
+            vector_store = None
+    else:
+        logger.warning("VectorStore not available (chromadb not installed) - RAG will operate without vector search")
     
     context_handler = ContextHandler(
         openrouter_client=openrouter_client,
