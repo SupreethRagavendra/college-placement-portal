@@ -3,6 +3,13 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
+# Resolve DB_HOST to IPv4 address to avoid IPv6 connection issues
+echo "🌐 Resolving DB_HOST to IPv4 address..."
+DB_HOST_ORIGINAL="${DB_HOST:-db.wkqbukidxmzbgwauncrl.supabase.co}"
+DB_HOST_IPV4=$(getent ahostsv4 "${DB_HOST_ORIGINAL}" 2>/dev/null | head -1 | awk '{print $1}' || echo "${DB_HOST_ORIGINAL}")
+echo "📍 Original DB_HOST: $DB_HOST_ORIGINAL"
+echo "📍 Resolved IPv4: $DB_HOST_IPV4"
+
 # Create .env file from environment variables
 echo "📝 Creating .env file from environment variables..."
 cat > /var/www/html/.env << EOF
@@ -16,7 +23,7 @@ LOG_CHANNEL="${LOG_CHANNEL:-stack}"
 LOG_LEVEL="${LOG_LEVEL:-info}"
 
 DB_CONNECTION="${DB_CONNECTION:-pgsql}"
-DB_HOST="${DB_HOST:-db.wkqbukidxmzbgwauncrl.supabase.co}"
+DB_HOST="${DB_HOST_IPV4}"
 DB_PORT="${DB_PORT:-5432}"
 DB_DATABASE="${DB_DATABASE:-postgres}"
 DB_USERNAME="${DB_USERNAME:-postgres}"
@@ -53,24 +60,20 @@ EOF
 
 echo "✅ .env file created"
 
-# Use environment variables for database connection
-echo "📝 Using database connection from environment"
-echo "📍 DB_HOST: $DB_HOST"
-echo "📍 DB_PORT: $DB_PORT"
-echo "📍 DB_USERNAME: $DB_USERNAME"
-echo "📍 DB_SSLMODE: $DB_SSLMODE"
+# Use IPv4 resolved address for database connection
+echo "📝 Using database connection with IPv4 address"
+echo "📍 DB_HOST (IPv4): $DB_HOST_IPV4"
+echo "📍 DB_PORT: ${DB_PORT:-5432}"
+echo "📍 DB_USERNAME: ${DB_USERNAME:-postgres}"
+echo "📍 DB_SSLMODE: ${DB_SSLMODE:-require}"
 
 # Test database connection (quick check only)
 echo "⏳ Testing database connection..."
-# Force IPv4 by resolving hostname to IPv4 address
-DB_HOST_IPV4=$(getent ahostsv4 "${DB_HOST}" | head -1 | awk '{print $1}' || echo "${DB_HOST}")
-echo "📍 Resolved DB_HOST to IPv4: $DB_HOST_IPV4"
-
 if php -r "
 try {
     \$pdo = new PDO(
-        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT};dbname=${DB_DATABASE};sslmode=${DB_SSLMODE}',
-        '${DB_USERNAME}',
+        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT:-5432};dbname=${DB_DATABASE:-postgres};sslmode=${DB_SSLMODE:-require}',
+        '${DB_USERNAME:-postgres}',
         '${DB_PASSWORD}',
         [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
