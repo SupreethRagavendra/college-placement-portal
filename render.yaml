@@ -133,6 +133,10 @@ services:
         value: 0.7
       - key: GROQ_MAX_TOKENS
         value: 1024
+      
+      # Render API (for MCP integration)
+      - key: RENDER_API_KEY
+        value: rnd_7jL5W9v48EKZox1ETVh0X1rRIYCy
 
   # Python FastAPI RAG Service
   - type: web
@@ -195,3 +199,7 @@ services:
         value: ./chromadb_storage
       - key: CHROMA_COLLECTION_NAME
         value: placement_knowledge
+      
+      # Render API (for MCP integration)
+      - key: RENDER_API_KEY
+        value: rnd_7jL5W9v48EKZox1ETVh0X1rRIYCy

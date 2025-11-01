@@ -3,38 +3,33 @@
 .gitignore
 .gitattributes
 
-# Documentation
-*.md
-!README.md
-RENDER_*.md
-DOCKER_*.md
-FIXES_APPLIED.md
+# Docker
+.dockerignore
+Dockerfile
+docker-compose.yml
 
-# Environment files
+# Node modules
+node_modules
+npm-debug.log
+
+# Laravel
 .env
 .env.*
 !.env.example
-
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# PHP
-vendor/
-.phpunit.result.cache
-.php_cs.cache
-
-# Storage (will be created at runtime)
 storage/logs/*
+!storage/logs/.gitkeep
 storage/framework/cache/*
+!storage/framework/cache/.gitkeep
 storage/framework/sessions/*
+!storage/framework/sessions/.gitkeep
 storage/framework/views/*
+!storage/framework/views/.gitkeep
 bootstrap/cache/*
+!bootstrap/cache/.gitkeep
 
-# IDE
-.vscode/
-.idea/
+# IDEs
+.idea
+.vscode
 *.swp
 *.swo
 *~
@@ -43,103 +38,32 @@ bootstrap/cache/*
 .DS_Store
 Thumbs.db
 
-# Testing
+# Documentation
+*.md
+!README.md
+docs/
+
+# Tests
 tests/
 phpunit.xml
-.phpunit.cache
 
 # Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-*.egg-info/
-
-# Backup files
-*.backup
-*.bak
-*-backup/
+python-rag/__pycache__
+python-rag/*.pyc
+python-rag/.pytest_cache
+python-rag/chromadb_storage
+python-rag/rag_service.log
 python-rag-groq-backup/
-
-# Python RAG Service (exclude from Laravel deployment - deploy separately)
-python-rag/
-python-rag-groq-backup/
-
-# ChromaDB storage (large binary files - several GB)
-chromadb_storage/
-*.bin
-*.sqlite3
-*.db
-*.db-shm
-*.db-wal
-
-# Documentation files (large PDFs and Word docs)
-docs/
-*.pdf
-*.docx
-*.doc
-
-# Build artifacts
-public/hot
-public/storage
-public/build/hot
 
 # Deployment scripts
-deploy-to-render.sh
-render-build.sh
-render-diagnose.sh
-
-# Windows batch files and shell scripts (not needed in Docker)
 *.bat
 *.sh
+!docker/start.sh
+!render-build.sh
 
-# Large configuration and analysis files
-*.txt
-email-test-output.txt
+# Temporary files
+*.log
+*.tmp
+*.bak
 verification-result.txt
-env-timeout-fix.txt
-RENDER_FINAL_FIX.txt
-
-# Various MD documentation files that aren't essential
-ADMIN_FIXES_COMPLETE.md
-CHANGES_SUMMARY.md
-CHATBOT_*.md
-CLOSURE_ERROR_FIX.md
-DEPLOYMENT_*.md
-DESIGN_QUICK_REFERENCE.md
-DOCKER_*.md
-EMAIL_*.md
-ENVIRONMENT_SETUP.md
-FINAL_*.md
-FIX_419_ERROR.md
-FIX_APPLIED.md
-FIXES_APPLIED.md
-FREE_HOSTING_COMPARISON.md
-HOW_TO_START_RAG_SERVICE.md
-IMPLEMENTATION_SUMMARY.md
-KIT_DESIGN_*.md
-MODEL_CONFIGURATION.md
-MODEL_NAMES_HIDDEN.md
-ORACLE_*.md
-PERFORMANCE_OPTIMIZATION_SUMMARY.md
-PRODUCTION_README.md
-QUICK_*.md
-RAG_*.md
-RENDER_*.md
-REVERTED_TO_OLD_DESIGN.md
-SESSION_FIX_SUMMARY.md
-SLOW_INTERNET_FIX.md
-SPEED_*.md
-SUPABASE_FIXES_COMPLETE.md
-TROUBLESHOOTING_DOCKER.md
-VIEW_NEW_DESIGN.md
-
-# Docker files (keep Dockerfile but exclude compose for Render)
-docker-compose.yml
-
-# Additional storage
-storage/app/public/
-storage/app/private/
+email-test-output.txt
