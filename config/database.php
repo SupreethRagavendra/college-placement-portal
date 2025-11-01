@@ -119,7 +119,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'search_path' => 'public',
-            'sslmode' => env('DB_SSLMODE', 'prefer'),
+            'sslmode' => env('DB_SSLMODE', 'require'),
             'connect_timeout' => env('DB_CONNECT_TIMEOUT', 60), // Connection timeout in seconds
             'options' => extension_loaded('pdo_pgsql') ? [
                 PDO::ATTR_TIMEOUT => env('DB_TIMEOUT', 90), // Query timeout: 90 seconds for slow connections
@@ -128,6 +128,8 @@ return [
                 PDO::ATTR_EMULATE_PREPARES => false,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_STRINGIFY_FETCHES => false,
+                // Force IPv4 connection if host is an IP address
+                PDO::MYSQL_ATTR_INIT_COMMAND => null, // Not applicable to PostgreSQL, but keep for compatibility
             ] : [],
         ],
 

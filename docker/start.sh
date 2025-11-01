@@ -24,7 +24,7 @@ LOG_LEVEL="${LOG_LEVEL:-info}"
 
 DB_CONNECTION="${DB_CONNECTION:-pgsql}"
 DB_HOST="${DB_HOST_IPV4}"
-DB_PORT="${DB_PORT:-5432}"
+DB_PORT="${DB_PORT_IPV4}"
 DB_DATABASE="${DB_DATABASE:-postgres}"
 DB_USERNAME="${DB_USERNAME:-postgres}"
 DB_PASSWORD="${DB_PASSWORD}"
@@ -61,9 +61,9 @@ EOF
 echo "✅ .env file created"
 
 # Use IPv4 resolved address for database connection
-echo "📝 Using database connection with IPv4 address"
-echo "📍 DB_HOST (IPv4): $DB_HOST_IPV4"
-echo "📍 DB_PORT: ${DB_PORT:-5432}"
+echo "📝 Using database connection with IPv4-compatible settings"
+echo "📍 DB_HOST: $DB_HOST_IPV4"
+echo "📍 DB_PORT: $DB_PORT_IPV4"
 echo "📍 DB_USERNAME: ${DB_USERNAME:-postgres}"
 echo "📍 DB_SSLMODE: ${DB_SSLMODE:-require}"
 
@@ -72,10 +72,14 @@ echo "⏳ Testing database connection..."
 if php -r "
 try {
     \$pdo = new PDO(
-        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT:-5432};dbname=${DB_DATABASE:-postgres};sslmode=${DB_SSLMODE:-require}',
+        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT_IPV4};dbname=${DB_DATABASE:-postgres};sslmode=${DB_SSLMODE:-require}',
         '${DB_USERNAME:-postgres}',
         '${DB_PASSWORD}',
-        [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [
+            PDO::ATTR_TIMEOUT => 10,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_PERSISTENT => false
+        ]
     );
     echo 'connected';
     exit(0);
@@ -88,7 +92,7 @@ try {
     DB_CONNECTED=true
 else
     echo "⚠️  Could not connect to database, but continuing..."
-    echo "⚠️  Laravel will handle database connections"
+    echo "⚠️  Laravel will handle database connections at runtime"
     DB_CONNECTED=false
 fi
 
