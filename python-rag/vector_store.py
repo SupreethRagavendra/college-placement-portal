@@ -2,19 +2,38 @@
 Vector Store for RAG System using ChromaDB
 Handles document embeddings and semantic search
 """
-import chromadb
-from chromadb.config import Settings
-from sentence_transformers import SentenceTransformer
 import logging
 from typing import List, Dict, Any
 
 logger = logging.getLogger(__name__)
+
+# Try to import chromadb and sentence-transformers, but make them optional
+try:
+    import chromadb
+    from chromadb.config import Settings
+    CHROMADB_AVAILABLE = True
+except ImportError:
+    CHROMADB_AVAILABLE = False
+    logger.warning("ChromaDB not available. Vector store features will be disabled.")
+
+try:
+    from sentence_transformers import SentenceTransformer
+    SENTENCE_TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    SENTENCE_TRANSFORMERS_AVAILABLE = False
+    logger.warning("Sentence transformers not available. Embeddings will be disabled.")
 
 class VectorStore:
     def __init__(self, persist_directory="./chroma_db"):
         """
         Initialize ChromaDB vector store with sentence transformer embeddings
         """
+        if not CHROMADB_AVAILABLE:
+            raise ImportError("ChromaDB is not installed. Install it with: pip install chromadb")
+        
+        if not SENTENCE_TRANSFORMERS_AVAILABLE:
+            raise ImportError("Sentence transformers is not installed. Install it with: pip install sentence-transformers")
+        
         try:
             self.client = chromadb.Client(Settings(
                 persist_directory=persist_directory,
