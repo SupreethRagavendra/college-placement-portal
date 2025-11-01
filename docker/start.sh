@@ -3,12 +3,40 @@ set -e
 
 echo "🚀 Starting Laravel application..."
 
-# Resolve DB_HOST to IPv4 address to avoid IPv6 connection issues
-echo "🌐 Resolving DB_HOST to IPv4 address..."
+# Fix IPv6 compatibility issue for Supabase free tier
+# Supabase free tier uses IPv6, but Render free tier may not support it
+# Solution: Use connection pooler port 6543 which supports IPv4
+echo "🌐 Configuring Supabase connection for IPv4 compatibility..."
 DB_HOST_ORIGINAL="${DB_HOST:-db.wkqbukidxmzbgwauncrl.supabase.co}"
-DB_HOST_IPV4=$(getent ahostsv4 "${DB_HOST_ORIGINAL}" 2>/dev/null | head -1 | awk '{print $1}' || echo "${DB_HOST_ORIGINAL}")
-echo "📍 Original DB_HOST: $DB_HOST_ORIGINAL"
-echo "📍 Resolved IPv4: $DB_HOST_IPV4"
+DB_PORT_ORIGINAL="${DB_PORT:-5432}"
+
+# Try to resolve IPv4 address first
+DB_HOST_IPV4=$(getent ahostsv4 "${DB_HOST_ORIGINAL}" 2>/dev/null | head -1 | awk '{print $1}' || echo "")
+if [ -z "$DB_HOST_IPV4" ]; then
+    # Try using dig if available
+    DB_HOST_IPV4=$(dig +short "${DB_HOST_ORIGINAL}" A 2>/dev/null | head -1 || echo "")
+fi
+
+# Use connection pooler port 6543 for IPv4 compatibility (works on free tier)
+# Port 6543 is Supabase's connection pooler which supports IPv4
+if [ "$DB_PORT_ORIGINAL" = "5432" ]; then
+    echo "✅ Using connection pooler port 6543 for IPv4 compatibility"
+    DB_PORT_IPV4="6543"
+else
+    DB_PORT_IPV4="${DB_PORT_ORIGINAL}"
+fi
+
+# Use resolved IPv4 if available, otherwise use original hostname
+if [ -n "$DB_HOST_IPV4" ] && [ "$DB_HOST_IPV4" != "$DB_HOST_ORIGINAL" ]; then
+    echo "✅ Resolved to IPv4: $DB_HOST_IPV4"
+    DB_HOST_FINAL="$DB_HOST_IPV4"
+else
+    echo "⚠️  Using hostname (connection pooler will handle IPv4)"
+    DB_HOST_FINAL="${DB_HOST_ORIGINAL}"
+fi
+
+echo "📍 DB_HOST: $DB_HOST_FINAL"
+echo "📍 DB_PORT: $DB_PORT_IPV4 (Connection Pooler for IPv4)"
 
 # Create .env file from environment variables
 echo "📝 Creating .env file from environment variables..."
@@ -23,7 +51,7 @@ LOG_CHANNEL="${LOG_CHANNEL:-stack}"
 LOG_LEVEL="${LOG_LEVEL:-info}"
 
 DB_CONNECTION="${DB_CONNECTION:-pgsql}"
-DB_HOST="${DB_HOST_IPV4}"
+DB_HOST="${DB_HOST_FINAL}"
 DB_PORT="${DB_PORT_IPV4}"
 DB_DATABASE="${DB_DATABASE:-postgres}"
 DB_USERNAME="${DB_USERNAME:-postgres}"
@@ -60,10 +88,10 @@ EOF
 
 echo "✅ .env file created"
 
-# Use IPv4 resolved address for database connection
+# Use IPv4-compatible connection settings
 echo "📝 Using database connection with IPv4-compatible settings"
-echo "📍 DB_HOST: $DB_HOST_IPV4"
-echo "📍 DB_PORT: $DB_PORT_IPV4"
+echo "📍 DB_HOST: $DB_HOST_FINAL"
+echo "📍 DB_PORT: $DB_PORT_IPV4 (Connection Pooler)"
 echo "📍 DB_USERNAME: ${DB_USERNAME:-postgres}"
 echo "📍 DB_SSLMODE: ${DB_SSLMODE:-require}"
 
@@ -72,7 +100,7 @@ echo "⏳ Testing database connection..."
 if php -r "
 try {
     \$pdo = new PDO(
-        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT_IPV4};dbname=${DB_DATABASE:-postgres};sslmode=${DB_SSLMODE:-require}',
+        'pgsql:host=${DB_HOST_FINAL};port=${DB_PORT_IPV4};dbname=${DB_DATABASE:-postgres};sslmode=${DB_SSLMODE:-require}',
         '${DB_USERNAME:-postgres}',
         '${DB_PASSWORD}',
         [
