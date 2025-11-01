@@ -62,13 +62,17 @@ echo "📍 DB_SSLMODE: $DB_SSLMODE"
 
 # Test database connection (quick check only)
 echo "⏳ Testing database connection..."
+# Force IPv4 by resolving hostname to IPv4 address
+DB_HOST_IPV4=$(getent ahostsv4 "${DB_HOST}" | head -1 | awk '{print $1}' || echo "${DB_HOST}")
+echo "📍 Resolved DB_HOST to IPv4: $DB_HOST_IPV4"
+
 if php -r "
 try {
     \$pdo = new PDO(
-        'pgsql:host=${DB_HOST};port=${DB_PORT};dbname=${DB_DATABASE};sslmode=${DB_SSLMODE}',
+        'pgsql:host=${DB_HOST_IPV4};port=${DB_PORT};dbname=${DB_DATABASE};sslmode=${DB_SSLMODE}',
         '${DB_USERNAME}',
         '${DB_PASSWORD}',
-        [PDO::ATTR_TIMEOUT => 5, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [PDO::ATTR_TIMEOUT => 10, PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
     echo 'connected';
     exit(0);
