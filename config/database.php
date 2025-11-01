@@ -128,8 +128,6 @@ return [
                 PDO::ATTR_EMULATE_PREPARES => false,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_STRINGIFY_FETCHES => false,
-                // Force IPv4 connection if host is an IP address
-                PDO::MYSQL_ATTR_INIT_COMMAND => null, // Not applicable to PostgreSQL, but keep for compatibility
             ] : [],
         ],
 
