@@ -67,13 +67,14 @@ try:
         api_url=os.getenv('OPENROUTER_API_URL')
     )
     
-    # Initialize vector store for RAG
+    # Initialize vector store for RAG (optional - will work without it)
+    vector_store = None
     try:
         vector_store = VectorStore()
         logger.info("Vector store initialized successfully")
-    except Exception as ve:
+    except (ImportError, Exception) as ve:
         logger.warning(f"Vector store initialization failed: {ve}")
-        logger.warning("RAG will operate without vector search")
+        logger.warning("RAG will operate without vector search - this is OK for deployment")
         vector_store = None
     
     context_handler = ContextHandler(
